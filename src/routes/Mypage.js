@@ -162,7 +162,7 @@ export const Mypage = () => {
             />
             <input
               type="text"
-              placeholder="영상 링크를 입력하세요.."
+              placeholder="영상 URL 입력하세요.."
               value={url} // project_url 상태에 바인딩
               onChange={(e) => setProjectUrl(e.target.value)} // 입력값 변경 시 상태 업데이트
               className="border bg-white p-2 w-full mb-4"
