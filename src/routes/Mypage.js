@@ -27,12 +27,13 @@ export const Mypage = () => {
 
     // 서버에 자막 데이터 전송
     try {
-      const response = await axios.post(`${baseAddress}/project`, {}, {
-        headers: {
-          'Authorization': `Bearer ${token}`, // Authorization 헤더에 토큰 포함
-        },
-        project_name: name,
-        project_url: url,
+      const response = await axios.post(`${baseAddress}/project`, {
+          project_name: name,
+          project_url: url,
+      }, {
+          headers: {
+              'Authorization': `Bearer ${token}`, // Authorization 헤더에 토큰 포함
+          }
       });
 
       console.log('서버 응답:', response.data);
@@ -42,6 +43,7 @@ export const Mypage = () => {
       setShowModal(false);
       setProjectName(''); // 상태 초기화
       setProjectUrl('');  // 상태 초기화
+      alert(name + url);
     } catch (error) {
       const errorMessage = error.response?.data?.message || '서버 오류가 발생했습니다.'; // 오류 메시지 정의
       console.error('에러 발생:', errorMessage);
