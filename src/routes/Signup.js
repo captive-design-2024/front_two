@@ -38,7 +38,7 @@ export default function SignUp() {
     try {
       const response = await axios.post(`${baseAddress}/user/signup`, formData);
       console.log('서버 응답:', response.data);
-      localStorage.setItem('token', response.data.token); // 회원가입 성공시 응답으로 받은 토큰을 localstorage에 저장
+      localStorage.setItem('token', response.data); // 회원가입 성공시 응답으로 받은 토큰을 localstorage에 저장
       alert('회원가입 성공!');
       navigate('/mypage'); // 회원가입 후 마이페이지로 이동
     } catch (error) {

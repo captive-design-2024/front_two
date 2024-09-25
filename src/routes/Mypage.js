@@ -17,19 +17,24 @@ export const Mypage = () => {
   const [url, setProjectUrl] = useState('');   // "영상 링크를 입력하세요" 입력값 저장
 
   const handleAddSubtitle = async () => {
+    const token = localStorage.getItem('token'); 
+
     const newSub = {
-      project_name : name,
-      project_url : url,
-      
+      project_name: name,
+      project_url: url,
       date: new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' }),
     };
 
     // 서버에 자막 데이터 전송
     try {
-      const response = await axios.post(`${baseAddress}/project`, {
-        project_name : name,
-        project_url : url,
+      const response = await axios.post(`${baseAddress}/project`, {}, {
+        headers: {
+          'Authorization': `Bearer ${token}`, // Authorization 헤더에 토큰 포함
+        },
+        project_name: name,
+        project_url: url,
       });
+
       console.log('서버 응답:', response.data);
 
       // 응답이 성공적이면 subtitles 상태에 추가
@@ -53,18 +58,53 @@ export const Mypage = () => {
     navigate('/Edit'); // 자막 편집 페이지로 이동
   };
 
+  const handleNewCheck = async () => {
+    const token = localStorage.getItem('token'); 
+    
+    if (!token) {
+      alert('로그인이 필요합니다.'); // 토큰이 없는 경우 경고
+      return;
+    }
+  
+    alert(token); // 이 줄을 사용하여 token이 올바르게 저장되었는지 확인하세요.
+    
+    try {
+      const response = await axios.post(`${baseAddress}/project/test`, {}, {
+        headers: {
+          'Authorization': `Bearer ${token}`, // Authorization 헤더에 토큰 포함
+        },
+      });
+      console.log('새로운 점검 응답:', response.data);
+      alert(response.data);
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || '새로운 점검 요청 중 오류가 발생했습니다.';
+      console.error('에러 발생:', errorMessage);
+      alert(errorMessage); // 서버에서 받은 에러 메시지로 알림 표시
+    }
+  };
+  
+
   return (
     <div className="w-full bg-white text-gray-900 min-h-screen">
       <div className="flex flex-col h-screen">
         <header className="bg-white text-gray-900 py-4 px-6 flex justify-between items-center">
           <h2 className="text-xl font-bold">마이페이지</h2>
-          <Button 
-            variant="outline" 
-            className="hover:bg-gray-200" 
-            onClick={() => setShowModal(true)}
-          >
-            + 자막 추가
-          </Button>
+          <div className="flex space-x-2">
+            <Button 
+              variant="outline" 
+              className="hover:bg-gray-200" 
+              onClick={() => setShowModal(true)}
+            >
+              + 자막 추가
+            </Button>
+            <Button 
+              variant="solid" 
+              className="hover:bg-blue-600"
+              onClick={handleNewCheck}
+            >
+              새로운 점검
+            </Button>
+          </div>
         </header>
         <div className="bg-white rounded-lg p-4 border border-gray-300">
           <h2 className="text-xl font-bold">내 정보</h2>
