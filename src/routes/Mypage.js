@@ -13,21 +13,22 @@ export const Mypage = () => {
     { title: '자막 3', summary: '영상 제목 3', date: '2024년 8월 3일' },
   ]);
   const [showModal, setShowModal] = useState(false);
-  const [project_name, setProjectName] = useState(''); // "영상 제목을 입력하세요" 입력값 저장
-  const [project_url, setProjectUrl] = useState('');   // "영상 링크를 입력하세요" 입력값 저장
+  const [name, setProjectName] = useState(''); // "영상 제목을 입력하세요" 입력값 저장
+  const [url, setProjectUrl] = useState('');   // "영상 링크를 입력하세요" 입력값 저장
 
   const handleAddSubtitle = async () => {
     const newSub = {
-      title: project_name,
-      summary: project_url,
+      project_name : name,
+      project_url : url,
+      
       date: new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' }),
     };
 
     // 서버에 자막 데이터 전송
     try {
-      const response = await axios.post(`${baseAddress}/subtitles`, {
-        title: project_name,
-        url: project_url,
+      const response = await axios.post(`${baseAddress}/project`, {
+        project_name : name,
+        project_url : url,
       });
       console.log('서버 응답:', response.data);
 
@@ -37,8 +38,9 @@ export const Mypage = () => {
       setProjectName(''); // 상태 초기화
       setProjectUrl('');  // 상태 초기화
     } catch (error) {
-      console.error('에러 발생:', error);
-      alert('자막 추가에 실패했습니다. 다시 시도해 주세요.');
+      const errorMessage = error.response?.data?.message || '서버 오류가 발생했습니다.'; // 오류 메시지 정의
+      console.error('에러 발생:', errorMessage);
+      alert(errorMessage); // 서버에서 받은 에러 메시지로 알림 표시
     }
   };
 
@@ -112,14 +114,14 @@ export const Mypage = () => {
             <input
               type="text"
               placeholder="영상 제목을 입력하세요.."
-              value={project_name} // project_name 상태에 바인딩
+              value={name} // project_name 상태에 바인딩
               onChange={(e) => setProjectName(e.target.value)} // 입력값 변경 시 상태 업데이트
               className="border bg-white p-2 w-full mb-4"
             />
             <input
               type="text"
               placeholder="영상 링크를 입력하세요.."
-              value={project_url} // project_url 상태에 바인딩
+              value={url} // project_url 상태에 바인딩
               onChange={(e) => setProjectUrl(e.target.value)} // 입력값 변경 시 상태 업데이트
               className="border bg-white p-2 w-full mb-4"
             />
