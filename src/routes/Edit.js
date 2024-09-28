@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios'; // axios 임포트 추가
 import { Button, Label, Textarea, Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem, Input, Select, Audio} from '../components/Components';
 
 export const Edit = () => {
@@ -46,6 +47,32 @@ export const Edit = () => {
     { value: "ja", label: "일본어" },
     { value: "zh", label: "중국어" },
   ];
+
+  const handleDownload = async () => {
+    try {
+      // 파일 다운로드 요청 (test.srt 파일이 있는 엔드포인트로 수정)
+      const response = await axios.get('http://localhost:3000/files/test', {
+        responseType: 'blob', // 파일 다운로드를 위해 blob 형식으로 응답 받기
+      });
+  
+      // Blob 객체를 URL로 변환
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+  
+      // 다운로드 링크 생성
+      const link = document.createElement('a');
+      link.href = url;
+  
+      // 링크 클릭하여 다운로드
+      document.body.appendChild(link);
+      link.click();
+  
+      // 링크 제거
+      link.parentNode.removeChild(link);
+  
+    } catch (error) {
+      console.error('파일 다운로드 중 오류 발생:', error);
+    }
+  };
 
   return (
     <div className="w-full bg-white">
@@ -119,6 +146,13 @@ export const Edit = () => {
                   <Button variant="outline" size="sm">취소</Button>
                   <Button variant="solid" size="sm">저장</Button>
                   <Button variant="solid" size="sm">업로드</Button>
+                  <Button
+                    variant="solid"
+                    size="sm"
+                    onClick={handleDownload} // 다운로드 버튼 클릭 시 파일 다운로드 함수 호출
+                  >
+                    다운로드
+                  </Button>
                 </div>
               </div>
             </div>
