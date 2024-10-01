@@ -42,6 +42,7 @@ export const Mypage = () => {
         });
         
         const fetchedSubtitles = response.data.projectNames.map((project, index) => ({
+          id: response.data.projectIDs[index], // 프로젝트 ID를 추가
           title: `자막 ${index + 1}`,
           summary: project,
           date: new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' }),
@@ -71,7 +72,8 @@ export const Mypage = () => {
       });
 
       const newSubtitle = {
-        title: `자막 ${subtitles.length + 1}`, // 새로운 자막 제목 생성
+        id: response.data.id, // 새로 추가된 자막의 ID를 저장
+        title: `자막 ${subtitles.length + 1}`,
         summary: title,
         date: new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' }),
       };
@@ -111,12 +113,11 @@ export const Mypage = () => {
       alert(errorMessage);
     }
   };
-  
-  
 
-  const handleEditClick = () => {
-    navigate('/Edit');
+  const handleEditClick = (projectId) => {
+    navigate(`/Edit/${projectId}`);
   };
+  
 
   return (
     <div className="w-full bg-white text-gray-900 min-h-screen">
@@ -143,8 +144,9 @@ export const Mypage = () => {
         <div className="flex-1 overflow-auto p-4">
           <div className="grid gap-4">
             {subtitles.map((subtitle, index) => (
-              <div key={index} className="bg-white rounded-lg shadow-md p-4 border border-gray-300">
+              <div key={subtitle.id} className="bg-white rounded-lg shadow-md p-4 border border-gray-300">
                 <h2 className="text-xl font-bold mb-2">{subtitle.title}</h2>
+                <h3 className="text-sm text-gray-500 mb-2">ID: {subtitle.id}</h3> {/* ID 출력 */}
                 <div className="grid gap-2">
                   <div className="flex items-center justify-between">
                     <div>
@@ -155,9 +157,9 @@ export const Mypage = () => {
                       <Button 
                         variant="outline" 
                         size="sm" 
-                        onClick={handleEditClick}
+                        onClick={() => handleEditClick(subtitle.id)}
                       >
-                        자막 편집
+                        자막 기능
                       </Button>
                       <Button 
                         variant="solid" 

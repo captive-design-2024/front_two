@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import axios from 'axios'; // axios 임포트 추가
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom'; // useParams 임포트
+import axios from 'axios';
 import { Button, Label, Textarea, Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem, Input, Select, Audio} from '../components/Components';
 
 export const Edit = () => {
@@ -7,6 +8,7 @@ export const Edit = () => {
   const [isFocused, setIsFocused] = useState(false);
   const [showModal, setShowModal] = useState(false); // 모달 상태 추가
   const [fileName, setFileName] = useState(""); // 파일 이름 저장
+
 
   const handleInputChange = (event) => {
     setSearchTerm(event.target.value);
@@ -19,6 +21,8 @@ export const Edit = () => {
   const handleInputBlur = () => {
     setIsFocused(false);
   };
+
+
 
   // 더미 데이터
   const words = [

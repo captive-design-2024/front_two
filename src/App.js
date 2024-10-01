@@ -73,7 +73,10 @@ function App() {
         <Route path="/" element={<Home isLoggedIn={isLoggedIn} />} />
         <Route path="/Home" element={<Home isLoggedIn={isLoggedIn} />} />
         <Route path="/Mypage" element={<MyPage />} />
-        <Route path="/Edit" element={<Edit />} />
+
+        {/* <Route path="/Edit" element={<Edit />} /> 원래 코드*/}
+        <Route path="/Edit/:projectId" element={<Edit />} />
+
         <Route path="/Login" element={<Login setIsLoggedIn={setIsLoggedIn} />} />
         <Route path="/Signup" element={<SignUp />} />
         <Route path="/User" element={<User />} />
@@ -85,4 +88,3 @@ function App() {
 
 export default App;
 
-//asdknmask
