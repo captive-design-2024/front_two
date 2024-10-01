@@ -1,100 +1,196 @@
-//임시 미사용 코드(Mypage 단어 수정 필요)
-import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Avatar from '@mui/material/Avatar';
+import Button from '@mui/material/Button';
+import CssBaseline from '@mui/material/CssBaseline';
+import TextField from '@mui/material/TextField';
+import Grid from '@mui/material/Grid';
+import Box from '@mui/material/Box';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import Typography from '@mui/material/Typography';
+import Container from '@mui/material/Container';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 import axios from 'axios';
 
+const defaultTheme = createTheme();
 const baseAddress = "http://localhost:3000";
 
-const Sidebar = () => {
-  return (
-    <div style={{ width: '200px', backgroundColor: '#f0f0f0', padding: '20px' }}> 
-      <ul style={{ listStyleType: 'none', padding: 0 }}>
-        <li style={{ marginBottom: '20px' }}>
-          <Link to="/mypage" style={{ textDecoration: 'none', color: '#333', fontWeight: 'bold' }}>회원 정보</Link>
-        </li>
-        <li>
-          <Link to="/Stats" style={{ textDecoration: 'none', color: '#333', fontWeight: 'bold' }}>내 채널 통계</Link>
-        </li>
-      </ul>
-    </div>
-  );
-};
-
-export const Mypage = () => {
-  const [user, setUser] = useState({});
+export default function User() {
+  const [name, setUserName] = useState('');
+  const [id, setUserId] = useState('');
+  const [password, setUserPassword] = useState('');
+  const [email, setUserEmail] = useState('');
+  const [phone_number, setUserPhone] = useState('');
+  const [title, setProjectTitle] = useState([]); // 프로젝트 제목 상태 추가
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUserData = async () => {
       const token = localStorage.getItem('token');
-      if (!token) {
-        alert('로그인이 필요합니다.');
-        navigate('/login');
-        return;
-      }
-
       try {
-        const response = await axios.post(`${baseAddress}/auth/signup`, {
+        const response = await axios.get(`${baseAddress}/user/value`, {
           headers: {
-            Authorization: `Bearer ${token}`,
-          },
+            'Authorization': `Bearer ${token}`,
+          }
         });
-        setUser(response.data);
+        setUserId(response.data[0].id);
+        setUserPassword(response.data[0].password);
+        setUserName(response.data[0].name);
+        setUserEmail(response.data[0].email);
+        setUserPhone(response.data[0].phone);
       } catch (error) {
-        console.error('에러 발생:', error);
-        alert('사용자 정보를 가져오는데 실패했습니다.');
-        navigate('/login');
+        console.error('유저 데이터를 가져오는 중 에러 발생:', error);
+      }
+    };
+
+    const fetchProjectTitle = async () => { // 프로젝트 제목을 가져오는 함수
+      const token = localStorage.getItem('token');
+      try {
+        const response = await axios.get(`${baseAddress}/project/title`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          }
+        });
+        console.log('프로젝트 제목 응답:', response.data); // 응답 확인
+        setProjectTitle(response.data.projectNames); // projectNames 배열로 상태 업데이트
+      } catch (error) {
+        console.error('프로젝트 제목을 가져오는 중 에러 발생:', error);
       }
     };
 
     fetchUserData();
-  }, [navigate]);
+    fetchProjectTitle(); // 컴포넌트가 마운트될 때 프로젝트 제목을 가져옴
+  }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    navigate('/login');
-  };
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const formData = {
+      user_id: id, // 수정된 부분
+      user_password: password, // 수정된 부분
+      user_name: name, // 수정된 부분
+      user_email: email, // 수정된 부분
+      user_phone: phone_number // 수정된 부분
+    };
 
+    console.log('회원정보 수정 시도:', formData);
+
+  try {
+    const token = localStorage.getItem('token'); // 로컬 스토리지에서 토큰 가져오기
+    const response = await axios.put(`${baseAddress}/user`, formData, {
+      headers: {
+        Authorization: `Bearer ${token}` // Authorization 헤더 추가
+      }
+    });
+    console.log('서버 응답:', response.data);
+    alert('회원정보 수정 성공!');
+    navigate('/mypage'); // 수정 후 마이페이지로 이동
+  } catch (error) {
+    const errorMessage = error.response?.data?.message || '회원정보 수정 실패. 다시 시도해 주세요.';
+    console.error('에러 발생:', error.response?.data); // ?를 추가하여 안전하게 접근
+    alert(errorMessage);
+  }
+}
+    
   return (
-    <div style={{ display: 'flex', flexDirection: 'row', flexGrow: 1 }}>
-      <Sidebar />
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexGrow: 1 }}>
-        <div style={{ margin: '40px', marginLeft: '-100px' }}>
-          <Link to="/mypage">
-            <h2 style={{ color: '#333', fontWeight: 'bold', fontSize: '2rem' }}>회원 정보</h2>
-          </Link>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'baseline', marginLeft: '10px' }}>
-          <label className="input input-bordered flex items-center gap-2" style={{ margin: '10px' }}>
-            이름
-            <input type="text" className="grow" value={user.name || '이름 가져오기'} readOnly />
-          </label>
-          <label className="input input-bordered flex items-center gap-2" style={{ margin: '10px' }}>
-            아이디
-            <input type="text" className="grow" value={user.id || '아이디 가져오기'} readOnly />
-          </label>
-          <label className="input input-bordered flex items-center gap-2" style={{ margin: '10px' }}>
-            현재 비밀번호
-            <input type="password" className="grow" placeholder="비밀번호 입력" />
-          </label>
-          <label className="input input-bordered flex items-center gap-2" style={{ margin: '10px', marginBottom: '50px' }}>
-            새로운 비밀번호
-            <input type="password" className="grow" placeholder="새로운 비밀번호 입력" />
-          </label>
-          <div>
-            <span style={{ marginRight: '10px' }}>
-              <Link to="/mypage">
-                <button className="btn btn-outline">회원정보 수정</button>
-              </Link>
-            </span>
-            <span>
-              <button className="btn btn-outline" onClick={handleLogout}>로그아웃</button>
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
+    <ThemeProvider theme={defaultTheme}>
+      <Container component="main" maxWidth={false} sx={{ height: '100vh' }}>
+        <CssBaseline />
+        <Box
+          sx={{
+            marginTop: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '100%',
+          }}
+        >
+          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+            <LockOutlinedIcon />
+          </Avatar>
+          <Typography component="h1" variant="h5">
+            회원정보 수정
+          </Typography>
+          <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  id="name"
+                  label="이름"
+                  value={name}
+                  onChange={(e) => setUserName(e.target.value)}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  id="id"
+                  label="아이디"
+                  value={id}
+                  onChange={(e) => setUserId(e.target.value)}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  label="비밀번호"
+                  id="password"
+                  value={password}
+                  onChange={(e) => setUserPassword(e.target.value)}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  id="email"
+                  label="이메일"
+                  value={email}
+                  onChange={(e) => setUserEmail(e.target.value)}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  id="phone"
+                  label="전화번호"
+                  value={phone_number}
+                  onChange={(e) => setUserPhone(e.target.value)}
+                />
+              </Grid>
+              {title.map((item, index) => (
+                <Grid item xs={12} key={index}>
+                  <TextField
+                    required
+                    fullWidth
+                    id={`title-${index}`}
+                    label={`제목 ${index + 1}`}
+                    value={item} // item으로 각 제목을 가져옴
+                    onChange={(e) => {
+                      const newTitle = [...title];
+                      newTitle[index] = e.target.value; // 제목 수정 가능
+                      setProjectTitle(newTitle);
+                    }}
+                  />
+                </Grid>
+              ))}
+            </Grid>
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+            >
+              수정하기
+            </Button>
+          </Box>
+        </Box>
+      </Container>
+    </ThemeProvider>
   );
-};
-
-export default Mypage;
+}

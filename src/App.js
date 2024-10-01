@@ -5,6 +5,7 @@ import MyPage from './routes/Mypage';
 import Edit from './routes/Edit';
 import Login from './routes/Login';
 import SignUp from './routes/Signup';
+import User from './routes/User';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태 관리
@@ -48,7 +49,7 @@ function App() {
         <div className="flex items-center space-x-4">
           {isLoggedIn ? (
             <>
-              <Link to="/Edit" className="text-gray-300 text-white px-4 py-2 rounded hover:bg-blue-600 text-sm">
+              <Link to="/User" className="text-gray-300 text-white px-4 py-2 rounded hover:bg-blue-600 text-sm">
                 회원정보 수정
               </Link>
               <button onClick={handleLogout} className="text-gray-300 text-white px-4 py-2 rounded hover:bg-blue-600 text-sm">
@@ -75,6 +76,7 @@ function App() {
         <Route path="/Edit" element={<Edit />} />
         <Route path="/Login" element={<Login setIsLoggedIn={setIsLoggedIn} />} />
         <Route path="/Signup" element={<SignUp />} />
+        <Route path="/User" element={<User />} />
       </Routes>
 
     </Router>

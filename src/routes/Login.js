@@ -42,7 +42,6 @@ export default function Login({ setIsLoggedIn }) {  // setIsLoggedIn props 추�
       console.log('서버 응답:', response.data);
       localStorage.setItem('token', response.data); // JWT 토큰 저장
       alert('로그인 성공!');
-      alert(response.data);
       setIsLoggedIn(true); // 로그인 성공 시 상태 업데이트
       navigate('/mypage'); // 로그인 후 마이페이지로 이동
     } catch (error) {
