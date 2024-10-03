@@ -8,9 +8,10 @@ export const Edit = () => {
   const [isFocused, setIsFocused] = useState(false);
   const [showModal, setShowModal] = useState(false); // 모달 상태 추가
   const [fileName, setFileName] = useState(""); // 파일 이름 저장
+  //수정중
   const { projectId } = useParams(); // URL에서 projectId 추출
   console.log(projectId);  // 추출된 projectId가 무엇인지 확인
-
+  //수정중
 
   const handleInputChange = (event) => {
     setSearchTerm(event.target.value);
@@ -54,7 +55,7 @@ export const Edit = () => {
     { value: "zh", label: "중국어" },
   ];
 
-  //수정필요???
+  //수정중
   const handleDownload = async (event) => {
     event.preventDefault();
     const formData = {
@@ -68,6 +69,7 @@ export const Edit = () => {
       console.error('에러 발생:', error.response.data);
     }
   };
+  //수정중
 
   const handleCheck = async () => {
     try {
