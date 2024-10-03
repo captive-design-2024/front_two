@@ -8,6 +8,8 @@ export const Edit = () => {
   const [isFocused, setIsFocused] = useState(false);
   const [showModal, setShowModal] = useState(false); // 모달 상태 추가
   const [fileName, setFileName] = useState(""); // 파일 이름 저장
+  const { projectId } = useParams(); // URL에서 projectId 추출
+  console.log(projectId);  // 추출된 projectId가 무엇인지 확인
 
 
   const handleInputChange = (event) => {
@@ -52,31 +54,31 @@ export const Edit = () => {
     { value: "zh", label: "중국어" },
   ];
 
-  const handleDownload = async () => {
+  //수정필요???
+  const handleDownload = async (event) => {
+    event.preventDefault();
+    const formData = {
+      projectId: projectId
+    };
     try {
-      // 파일 다운로드 요청 (test.srt 파일이 있는 엔드포인트로 수정)
-      const response = await axios.get('http://localhost:3000/files/test', {
-        responseType: 'blob', // 파일 다운로드를 위해 blob 형식으로 응답 받기
-      });
-  
-      // Blob 객체를 URL로 변환
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-  
-      // 다운로드 링크 생성
-      const link = document.createElement('a');
-      link.href = url;
-  
-      // 링크 클릭하여 다운로드
-      document.body.appendChild(link);
-      link.click();
-  
-      // 링크 제거
-      link.parentNode.removeChild(link);
-  
+      console.log('프로젝트 ID:', projectId);
+      const response = await axios.post(`http://localhost:3000/work/generteSub`, formData);
+      console.log('서버 응답:', response.data);
     } catch (error) {
-      console.error('파일 다운로드 중 오류 발생:', error);
+      console.error('에러 발생:', error.response.data);
     }
   };
+
+  const handleCheck = async () => {
+    try {
+      console.log('점검 요청 전송 중...'); // 요청 전송 전에 로그 추가
+      const response = await axios.post('http://localhost:4000/llm', {
+      });
+      console.log('점검 결과:', response.data); // 서버로부터 받은 응답 로그
+    } catch (error) {
+      console.error('점검 요청 중 오류 발생:', error);
+    }
+  };  
 
   return (
     <div className="w-full bg-white">
@@ -102,7 +104,7 @@ export const Edit = () => {
                 <h2 className="text-xl font-bold text-black">자막 수정</h2>
                 <div className="flex space-x-2">
                 <Button variant="outline" size="sm">생성</Button>
-                <Button variant="solid" size="sm">점검</Button>
+                <Button variant="solid" size="sm" onClick={handleCheck}>점검</Button>
                 </div>
               </div>
               <div className="grid gap-4">
