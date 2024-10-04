@@ -82,6 +82,7 @@ export const Mypage = () => {
       setShowModal(false);
       setProjectName('');
       setProjectUrl('');
+      window.location.reload(); //새로고침
     } catch (error) {
       const errorMessage = error.response?.data?.message || '서버 오류가 발생했습니다.';
       console.error('에러 발생:', errorMessage);

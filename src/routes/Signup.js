@@ -40,7 +40,7 @@ export default function SignUp() {
       console.log('서버 응답:', response.data);
       localStorage.setItem('token', response.data); // 회원가입 성공시 응답으로 받은 토큰을 localstorage에 저장
       alert('회원가입 성공!');
-      navigate('/mypage'); // 회원가입 후 마이페이지로 이동
+      navigate('/login'); // 회원가입 후 마이페이지로 이동
     } catch (error) {
       const errorMessage = error.response?.data?.message || '회원가입 실패. 다시 시도해 주세요.';
       console.error('에러 발생:', error.response.data);
