@@ -62,11 +62,13 @@ export const Edit = () => {
     };
     try {
       console.log('프로젝트 ID:', projectId);
-      console.log(typeof projectId); // projectId의 타입을 확인
+      console.log(typeof projectId); // projectId의 타입이 string이 맞는지 확인
       const response = await axios.post(`http://localhost:3000/work/generateSub`, formData);
-      //console.log('서버 응답:', response.data);
+     
+      //어짜피 response값이 없어서 일단 꺼둠
+      //console.log('서버 응답:', response.data); 
   
-      // 응답을 기다리지 않고 요청이 잘 갔는지 확인하는 용도로 로그 추가
+      // 응답 없이 요청만 잘 갔는지 확인하는 용도로 로그 추가
       if (response.status === 200) {
         console.log('요청이 성공적으로 전송되었습니다.');
       } else {
