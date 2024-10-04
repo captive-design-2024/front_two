@@ -8,10 +8,9 @@ export const Edit = () => {
   const [isFocused, setIsFocused] = useState(false);
   const [showModal, setShowModal] = useState(false); // 모달 상태 추가
   const [fileName, setFileName] = useState(""); // 파일 이름 저장
+
   //수정중
   const { projectId } = useParams(); // URL에서 projectId 추출
-  console.log(projectId);  // 추출된 projectId가 무엇인지 확인
-  //수정중
 
   const handleInputChange = (event) => {
     setSearchTerm(event.target.value);
@@ -55,7 +54,7 @@ export const Edit = () => {
     { value: "zh", label: "중국어" },
   ];
 
-  //수정중
+//수정중
   const handleDownload = async (event) => {
     event.preventDefault();
     const formData = {
@@ -63,13 +62,21 @@ export const Edit = () => {
     };
     try {
       console.log('프로젝트 ID:', projectId);
-      const response = await axios.post(`http://localhost:3000/work/generteSub`, formData);
-      console.log('서버 응답:', response.data);
+      console.log(typeof projectId); // projectId의 타입을 확인
+      const response = await axios.post(`http://localhost:3000/work/generateSub`, formData);
+      //console.log('서버 응답:', response.data);
+  
+      // 응답을 기다리지 않고 요청이 잘 갔는지 확인하는 용도로 로그 추가
+      if (response.status === 200) {
+        console.log('요청이 성공적으로 전송되었습니다.');
+      } else {
+        console.log('요청이 전송되었으나, 예상치 못한 응답 코드:', response.status);
+      }
     } catch (error) {
-      console.error('에러 발생:', error.response.data);
+      console.error('에러 발생:', error.response?.data || error.message);
     }
   };
-  //수정중
+  
 
   const handleCheck = async () => {
     try {
