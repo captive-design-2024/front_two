@@ -30,7 +30,6 @@ export const Edit = () => {
     setSearchTerm(event.target.value);
   };
 
-
   const handleInputFocus = () => {
     setIsFocused(true);
   };
@@ -38,8 +37,6 @@ export const Edit = () => {
   const handleInputBlur = () => {
     setIsFocused(false);
   };
-
-
 
   // 더미 데이터
   const words = [
@@ -69,8 +66,7 @@ export const Edit = () => {
     { value: "zh", label: "중국어" },
   ];
 
-//수정중
-  const handleDownload = async (event) => {
+  const handleGenerate = async (event) => {
     event.preventDefault();
     const formData = {
       content_projectID: projectId
@@ -94,12 +90,10 @@ export const Edit = () => {
     }
   };
   
-
   const handleCheck = async () => {
     try {
       console.log('점검 요청 전송 중...'); // 요청 전송 전에 로그 추가
-      const response = await axios.post('http://localhost:4000/llm', {
-      });
+      const response = await axios.post('http://localhost:4000/llm', {});
       console.log('점검 결과:', response.data); // 서버로부터 받은 응답 로그
     } catch (error) {
       console.error('점검 요청 중 오류 발생:', error);
@@ -112,7 +106,6 @@ export const Edit = () => {
       <div className="bg-white">
         <header className="bg-white text-gray-900 py-4 px-6 text-xl font-bold flex justify-between items-center">
           자막 편집
-          
         </header>
         <div className="flex bg-white">
           {/* 자막 수정 칸을 iframe 영역까지 확장 */}
@@ -121,8 +114,8 @@ export const Edit = () => {
               <div className="flex items-center justify-between mb-2">
                 <h2 className="text-xl font-bold text-black">자막 수정</h2>
                 <div className="flex space-x-2">
-                <Button variant="outline" size="sm">생성</Button>
-                <Button variant="solid" size="sm" onClick={handleCheck}>점검</Button>
+                  <Button variant="outline" size="sm" onClick={handleGenerate}>생성</Button>
+                  <Button variant="solid" size="sm" onClick={handleCheck}>점검</Button>
                 </div>
               </div>
               <div className="grid gap-4">
@@ -140,7 +133,6 @@ export const Edit = () => {
                 </div>
                 
                 <div className="relative" ref={commandRef}> {/* ref를 여기서 사용 */}
-
                   <Command>
                     <CommandInput
                       placeholder="단어를 수정하세요..."
@@ -172,20 +164,11 @@ export const Edit = () => {
                   <Button variant="outline" size="sm">취소</Button>
                   <Button variant="solid" size="sm">저장</Button>
                   <Button variant="solid" size="sm">업로드</Button>
-                  <Button
-                    variant="solid"
-                    size="sm"
-                    onClick={handleDownload}
-                  >
-                    다운로드
-                  </Button>
                 </div>
               </div>
             </div>
           </div>
         </div>
-
-      
       </div>
 
       {/* 하단 페이지: 자막 번역 */}
@@ -255,8 +238,8 @@ export const Edit = () => {
                   <div className="flex items-center justify-between mt-4">
                     <Audio src="generated-voice.mp3" />
                     <div className="flex space-x-2">
-                    <Button variant="outline" className="hover:bg-gray-200">생성</Button>
-                    <Button variant="solid" className="hover:bg-gray-200">저장</Button>
+                      <Button variant="outline" className="hover:bg-gray-200">생성</Button>
+                      <Button variant="solid" className="hover:bg-gray-200">저장</Button>
                     </div>
                   </div>
                 </div>
