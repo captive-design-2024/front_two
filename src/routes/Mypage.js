@@ -121,60 +121,58 @@ export const Mypage = () => {
   
 
   return (
-    <div className="w-full bg-white text-gray-900 min-h-screen">
-      <div className="flex flex-col h-screen">
-        <header className="bg-white text-gray-900 py-4 px-6 flex justify-between items-center">
-          <h2 className="text-xl font-bold">마이페이지</h2>
-          <div className="flex space-x-2">
-            <Button 
-              variant="outline" 
-              className="hover:bg-gray-200" 
-              onClick={() => setShowModal(true)}
-            >
-              + 자막 추가
-            </Button>
-          </div>
-        </header>
-
-        <div className="bg-white rounded-lg p-4 border border-gray-300">
-          <h2 className="text-xl font-bold">내 정보</h2>
-          <p><span className="font-bold">이름: {userData.name}</span></p>
-          <p><span className="font-bold">이메일: {userData.email}</span></p>
+    <div className="w-full bg-white text-gray-900 min-h-screen flex flex-col">
+      <header className="bg-white text-gray-900 py-4 px-6 flex justify-between items-center">
+        <h2 className="text-xl font-bold">마이페이지</h2>
+        <div className="flex space-x-2">
+          <Button 
+            variant="outline" 
+            className="hover:bg-gray-200" 
+            onClick={() => setShowModal(true)}
+          >
+            + 자막 추가
+          </Button>
         </div>
+      </header>
 
-        <div className="flex-1 overflow-auto p-4">
-          <div className="grid gap-4">
-            {subtitles.map((subtitle, index) => (
-              <div key={subtitle.id} className="bg-white rounded-lg shadow-md p-4 border border-gray-300">
-                <h2 className="text-xl font-bold mb-2">{subtitle.title}</h2>
-                <h3 className="text-sm text-gray-500 mb-2">ID: {subtitle.id}</h3> {/* ID 출력 */}
-                <div className="grid gap-2">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-medium">{subtitle.summary}</h3>
-                      <p className="text-sm text-gray-500">{subtitle.date}</p>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => handleEditClick(subtitle.id)}
-                      >
-                        자막 기능
-                      </Button>
-                      <Button 
-                        variant="solid" 
-                        size="sm" 
-                        onClick={() => handleDeleteSubtitle(index)}
-                      >
-                        삭제
-                      </Button>
-                    </div>
+      <div className="bg-white rounded-lg p-4 border border-gray-300 mb-4">
+        <h2 className="text-xl font-bold">내 정보</h2>
+        <p><span className="font-bold">이름: {userData.name}</span></p>
+        <p><span className="font-bold">이메일: {userData.email}</span></p>
+      </div>
+
+      <div className="flex-1 overflow-auto p-4">
+        <div className="grid gap-4">
+          {subtitles.map((subtitle, index) => (
+            <div key={subtitle.id} className="bg-white rounded-lg shadow-md p-4 border border-gray-300">
+              <h2 className="text-xl font-bold mb-2">{subtitle.title}</h2>
+              <h3 className="text-sm text-gray-500 mb-2">ID: {subtitle.id}</h3> {/* ID 출력 */}
+              <div className="grid gap-2">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-medium">{subtitle.summary}</h3>
+                    <p className="text-sm text-gray-500">{subtitle.date}</p>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => handleEditClick(subtitle.id)}
+                    >
+                      자막 기능
+                    </Button>
+                    <Button 
+                      variant="solid" 
+                      size="sm" 
+                      onClick={() => handleDeleteSubtitle(index)}
+                    >
+                      삭제
+                    </Button>
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       </div>
 

@@ -18,7 +18,8 @@ const baseAddress = "http://localhost:3000";
 export default function User() {
   const [name, setUserName] = useState('');
   const [id, setUserId] = useState('');
-  const [password, setUserPassword] = useState('');
+  const [currentPassword, setCurrentPassword] = useState(''); // 현재 비밀번호 상태
+  const [newPassword, setNewPassword] = useState(''); // 변경할 비밀번호 상태
   const [email, setUserEmail] = useState('');
   const [phone_number, setUserPhone] = useState('');
   const [title, setProjectTitle] = useState([]); // 프로젝트 제목 상태 추가
@@ -34,7 +35,6 @@ export default function User() {
           }
         });
         setUserId(response.data[0].id);
-        setUserPassword(response.data[0].password);
         setUserName(response.data[0].name);
         setUserEmail(response.data[0].email);
         setUserPhone(response.data[0].phone);
@@ -43,7 +43,7 @@ export default function User() {
       }
     };
 
-    const fetchProjectTitle = async () => { // 프로젝트 제목을 가져오는 함수
+    const fetchProjectTitle = async () => {
       const token = localStorage.getItem('token');
       try {
         const response = await axios.get(`${baseAddress}/project/title`, {
@@ -51,46 +51,47 @@ export default function User() {
             'Authorization': `Bearer ${token}`,
           }
         });
-        console.log('프로젝트 제목 응답:', response.data); // 응답 확인
-        setProjectTitle(response.data.projectNames); // projectNames 배열로 상태 업데이트
+        console.log('프로젝트 제목 응답:', response.data);
+        setProjectTitle(response.data.projectNames);
       } catch (error) {
         console.error('프로젝트 제목을 가져오는 중 에러 발생:', error);
       }
     };
 
     fetchUserData();
-    fetchProjectTitle(); // 컴포넌트가 마운트될 때 프로젝트 제목을 가져옴
+    fetchProjectTitle();
   }, []);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     const formData = {
-      user_id: id, // 수정된 부분
-      user_password: password, // 수정된 부분
-      user_name: name, // 수정된 부분
-      user_email: email, // 수정된 부분
-      user_phone: phone_number // 수정된 부분
+      user_id: id,
+      current_password: currentPassword, // 현재 비밀번호 추가
+      new_password: newPassword, // 변경할 비밀번호 추가
+      user_name: name,
+      user_email: email,
+      user_phone: phone_number,
     };
 
     console.log('회원정보 수정 시도:', formData);
 
-  try {
-    const token = localStorage.getItem('token'); // 로컬 스토리지에서 토큰 가져오기
-    const response = await axios.put(`${baseAddress}/user`, formData, {
-      headers: {
-        Authorization: `Bearer ${token}` // Authorization 헤더 추가
-      }
-    });
-    console.log('서버 응답:', response.data);
-    alert('회원정보 수정 성공!');
-    navigate('/mypage'); // 수정 후 마이페이지로 이동
-  } catch (error) {
-    const errorMessage = error.response?.data?.message || '회원정보 수정 실패. 다시 시도해 주세요.';
-    console.error('에러 발생:', error.response?.data); // ?를 추가하여 안전하게 접근
-    alert(errorMessage);
-  }
-}
-    
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.put(`${baseAddress}/user`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log('서버 응답:', response.data);
+      alert('회원정보 수정 성공!');
+      navigate('/mypage');
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || '회원정보 수정 실패. 다시 시도해 주세요.';
+      console.error('에러 발생:', error.response?.data);
+      alert(errorMessage);
+    }
+  };
+
   return (
     <ThemeProvider theme={defaultTheme}>
       <Container component="main" maxWidth={false} sx={{ height: '100vh' }}>
@@ -137,10 +138,22 @@ export default function User() {
                 <TextField
                   required
                   fullWidth
-                  label="비밀번호"
-                  id="password"
-                  value={password}
-                  onChange={(e) => setUserPassword(e.target.value)}
+                  label="현재 비밀번호"
+                  type="password" // 비밀번호 입력 필드
+                  id="current-password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  label="변경할 비밀번호"
+                  type="password" // 비밀번호 입력 필드
+                  id="new-password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -163,22 +176,6 @@ export default function User() {
                   onChange={(e) => setUserPhone(e.target.value)}
                 />
               </Grid>
-              {title.map((item, index) => (
-                <Grid item xs={12} key={index}>
-                  <TextField
-                    required
-                    fullWidth
-                    id={`title-${index}`}
-                    label={`제목 ${index + 1}`}
-                    value={item} // item으로 각 제목을 가져옴
-                    onChange={(e) => {
-                      const newTitle = [...title];
-                      newTitle[index] = e.target.value; // 제목 수정 가능
-                      setProjectTitle(newTitle);
-                    }}
-                  />
-                </Grid>
-              ))}
             </Grid>
             <Button
               type="submit"

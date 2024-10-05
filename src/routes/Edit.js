@@ -1,20 +1,35 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom'; // useParams 임포트
+import React, { useEffect, useState, useRef } from 'react'; // useRef 추가
+import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import { Button, Label, Textarea, Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem, Input, Select, Audio} from '../components/Components';
+import { Button, Label, Textarea, Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem, Input, Select, Audio } from '../components/Components';
 
 export const Edit = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isFocused, setIsFocused] = useState(false);
-  const [showModal, setShowModal] = useState(false); // 모달 상태 추가
-  const [fileName, setFileName] = useState(""); // 파일 이름 저장
+  const [showModal, setShowModal] = useState(false);
+  const [fileName, setFileName] = useState("");
+  
+  const { projectId } = useParams();
+  const commandRef = useRef(null); // Command 컴포넌트에 대한 참조 생성
 
-  //수정중
-  const { projectId } = useParams(); // URL에서 projectId 추출
+  // 외부 클릭 시 드롭다운 닫기
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (commandRef.current && !commandRef.current.contains(event.target)) {
+        setIsFocused(false); // 드롭다운 닫기
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [commandRef]);
 
   const handleInputChange = (event) => {
     setSearchTerm(event.target.value);
   };
+
 
   const handleInputFocus = () => {
     setIsFocused(true);
@@ -58,24 +73,24 @@ export const Edit = () => {
   const handleDownload = async (event) => {
     event.preventDefault();
     const formData = {
-      projectId: projectId
+      content_projectID: projectId
     };
     try {
       console.log('프로젝트 ID:', projectId);
       console.log(typeof projectId); // projectId의 타입이 string이 맞는지 확인
       const response = await axios.post(`http://localhost:3000/work/generateSub`, formData);
-     
-      //어짜피 response값이 없어서 일단 꺼둠
-      //console.log('서버 응답:', response.data); 
-  
-      // 응답 없이 요청만 잘 갔는지 확인하는 용도로 로그 추가
-      if (response.status === 200) {
+
+      if (response.data.success) {
         console.log('요청이 성공적으로 전송되었습니다.');
+        alert("성공");
       } else {
-        console.log('요청이 전송되었으나, 예상치 못한 응답 코드:', response.status);
+        console.log('요청 처리 실패:', response.data);
+        alert("실패");
       }
+      
     } catch (error) {
       console.error('에러 발생:', error.response?.data || error.message);
+      alert("캐치실패");
     }
   };
   
@@ -97,19 +112,11 @@ export const Edit = () => {
       <div className="bg-white">
         <header className="bg-white text-gray-900 py-4 px-6 text-xl font-bold flex justify-between items-center">
           자막 편집
-          <Button
-            variant="outline"
-            className="hover:bg-gray-200"
-            onClick={() => {
-              setFileName(""); // 모달을 열 때마다 입력된 내용을 초기화
-              setShowModal(true);
-            }}
-          >
-            + 자막 추가
-          </Button>
+          
         </header>
         <div className="flex bg-white">
-          <div className="w-1/2 p-4">
+          {/* 자막 수정 칸을 iframe 영역까지 확장 */}
+          <div className="w-full p-4">
             <div className="bg-white rounded-lg shadow-md p-4 border border-gray-300">
               <div className="flex items-center justify-between mb-2">
                 <h2 className="text-xl font-bold text-black">자막 수정</h2>
@@ -123,7 +130,7 @@ export const Edit = () => {
                   <Label htmlFor="content">영상 자막</Label>
                   <Textarea
                     id="content"
-                    rows={5}
+                    rows={10} // 자막 수정칸을 넓힘
                     defaultValue={`0:11 오늘도 아침엔 입에 빵을 물고
 
 0:15 똑같이 하루를 시작하고...
@@ -131,7 +138,9 @@ export const Edit = () => {
 1:05 나는 생각은 딱 질색이니까`}
                   />
                 </div>
-                <div className="relative">
+                
+                <div className="relative" ref={commandRef}> {/* ref를 여기서 사용 */}
+
                   <Command>
                     <CommandInput
                       placeholder="단어를 수정하세요..."
@@ -166,7 +175,7 @@ export const Edit = () => {
                   <Button
                     variant="solid"
                     size="sm"
-                    onClick={handleDownload} // 다운로드 버튼 클릭 시 파일 다운로드 함수 호출
+                    onClick={handleDownload}
                   >
                     다운로드
                   </Button>
@@ -174,64 +183,9 @@ export const Edit = () => {
               </div>
             </div>
           </div>
-          <div className="w-1/2 p-4">
-            <div className="bg-white rounded-lg shadow-md p-4 border border-gray-300">
-              <div className="relative w-full h-0 pb-[56.25%]">
-                <iframe
-                  src="https://www.youtube.com/embed/ATK7gAaZTOM?"
-                  className="absolute top-0 left-0 w-full h-full"
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              </div>
-            </div>
-          </div>
         </div>
 
-        {/* 자막 추가 모달 */}
-        {showModal && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-white p-6 rounded shadow-lg">
-              <h2 className="text-xl font-bold text-black mb-4">영상 선택</h2>
-              <input 
-                type="text" 
-                placeholder="영상 제목을 입력하세요.." 
-                className="border bg-white p-2 w-full mb-4"
-              />
-
-              <input 
-                type="text" 
-                placeholder="영상 링크를 입력하세요.." 
-                value={fileName} 
-                onChange={(e) => setFileName(e.target.value)} 
-                className="border bg-white p-2 w-full mb-4"
-              />
-              
-              <div className="flex justify-end space-x-2">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="hover:bg-gray-200" 
-                  onClick={() => setShowModal(false)}
-                >
-                  취소
-                </Button>
-                <Button 
-                  variant="solid" 
-                  size="sm" 
-                  className="hover:bg-blue-600"
-                  onClick={() => {
-                    // 유튜브 URL 처리 로직
-                    setShowModal(false); // 모달 닫기
-                  }}
-                >
-                  업로드
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
+      
       </div>
 
       {/* 하단 페이지: 자막 번역 */}
