@@ -146,7 +146,7 @@ export const Mypage = () => {
           {subtitles.map((subtitle, index) => (
             <div key={subtitle.id} className="bg-white rounded-lg shadow-md p-4 border border-gray-300">
               <h2 className="text-xl font-bold mb-2">{subtitle.title}</h2>
-              <h3 className="text-sm text-gray-500 mb-2">ID: {subtitle.id}</h3> {/* ID 출력 */}
+              {/* <h3 className="text-sm text-gray-500 mb-2">ID: {subtitle.id}</h3> ID 출력 */}
               <div className="grid gap-2">
                 <div className="flex items-center justify-between">
                   <div>

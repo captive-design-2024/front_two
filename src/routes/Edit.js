@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom'; // useParams 임포트
 import axios from 'axios';
 import { Button, Label, Textarea, Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem, Input, Select, Audio} from '../components/Components';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+
 
 export const Edit = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -174,13 +177,11 @@ export const Edit = () => {
                 </div>
 
                 <div>
-                  <Label htmlFor="content">수정된 자막</Label>
-                  <Textarea
-                    id="content"
-                    rows={5}
-                    defaultValue={checkedData}
-                  />
-                </div>
+  <Label htmlFor="content">수정된 자막</Label>
+  <div className="bg-gray-100 border border-gray-300 p-4 rounded-md">
+    <ReactMarkdown remarkPlugins={[remarkGfm]}>{checkedData}</ReactMarkdown>
+  </div>
+</div>
                 
                 <div className="mt-7" />
                 <div className="flex justify-end space-x-2">
