@@ -6,12 +6,40 @@ import { Button, Label, Textarea, Command, CommandInput, CommandList, CommandEmp
 export const Edit = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isFocused, setIsFocused] = useState(false);
-  const [showModal, setShowModal] = useState(false); // 모달 상태 추가
-  const [fileName, setFileName] = useState(""); // 파일 이름 저장
   const [generatedData, setGeneratedData] = useState(""); // 생성된 데이터를 위한 상태 추가
+  const [checkedData, setCheckedData] = useState(''); // 서버에서 받아온 데이터를 저장할 상태 추가
 
-  //수정중
+  const [recommendtitle, setrecommendTitle] = useState(''); //추천 제목
+  const [recommendtag, setrecommendTag] = useState(''); //추천 태그
+  const [translation, settranslation] = useState(''); //번역
+  const [selectedLanguage, setSelectedLanguage] = useState(''); // 선택한 언어 저장
+
+  const [getlink, setlink] = useState(''); //유튜브 링크
+
   const { projectId } = useParams(); // URL에서 projectId 추출
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const token = localStorage.getItem('token'); // 로컬 스토리지에서 JWT 토큰 가져오기
+
+      try {
+        const response = await axios.get(`http://localhost:3000/edit/${projectId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`, // 헤더에 JWT 토큰 추가
+          },
+        });
+        
+        console.log('받은 데이터:', response.data); // 받은 데이터 콘솔에 출력
+        setlink(response.data);
+        
+      } catch (error) {
+        console.error('데이터 요청 에러 발생:', error.response?.data || error.message);
+      }
+    };
+
+    fetchData(); // 데이터 가져오기 호출
+  }, [projectId]);
+
 
   const handleInputChange = (event) => {
     setSearchTerm(event.target.value);
@@ -51,14 +79,71 @@ export const Edit = () => {
 
   const handleCheck = async () => {
     try {
-      const response = await axios.post('http://localhost:4000/llm', {});
-      console.log('점검 결과:', response.data);
+      // 보낼 데이터를 콘솔에서 확인
+      console.log('보내는 데이터:', generatedData);
+  
+      // axios.post 요청 실행
+      const response = await axios.post('http://localhost:4000/llm/check', { content: generatedData });
+  
+      // 서버 응답 출력
+      console.log('서버 응답:', response.data);
+      setCheckedData(response.data); // 서버 응답 데이터를 checkedData에 저장
+    
+  
     } catch (error) {
-      console.error('점검 요청 중 오류 발생:', error);
+      console.error('에러 발생:', error.response?.data || error.message);
     }
   };
   
 
+  const handleRecommend = async () => {
+    try {
+      // 추천 제목 및 태그를 서버에서 요청
+      const response = await axios.post('http://localhost:4000/llm/recommend', { content: generatedData });
+  
+      // 서버 응답에서 문자열을 \n으로 쪼개기
+      const dataString = response.data; // 예: "제목: 오디오 추출 SRT 파일 확인 방법\n해시태그1: 오디오 추출\n해시태그2: SRT 파일"
+  
+      // \n으로 분리
+      const lines = dataString.split('\n');
+  
+      // 첫 번째 줄에서 제목 추출
+      const title = lines[0].replace(/제목:\s*/, '').trim(); // "제목: " 제거
+  
+      // 나머지 줄에서 해시태그 추출
+      const hashtags = lines
+        .slice(1) // 첫 번째 줄 제외
+        .filter(line => line.startsWith('해시태그')) // "해시태그"로 시작하는 줄만 필터링
+        .map(line => line.replace(/해시태그\d:\s*/, '').trim()); // "해시태그X: " 제거
+  
+      // 상태 설정
+      setrecommendTitle(title); // 추천 제목 설정
+      setrecommendTag(hashtags); // 추천 태그 설정
+  
+      console.log('추천 제목:', title);
+      console.log('추천 태그:', hashtags);
+    } catch (error) {
+      console.error('추천 요청 에러 발생:', error.response?.data || error.message);
+    }
+  };
+  
+  
+  const handleTranslation = async () => {
+    try {
+      // 서버에 번역 요청
+      const response = await axios.post('http://localhost:4000/llm/translate', {
+        content: generatedData,
+        language: selectedLanguage, // 선택한 언어를 함께 전송
+      });
+
+      // 서버 응답 처리
+      console.log('번역 결과:', response.data);
+      settranslation(response.data);
+      // 필요에 따라 번역 결과를 상태에 저장하거나 처리
+    } catch (error) {
+      console.error('번역 요청 에러 발생:', error.response?.data || error.message);
+    }
+  };
 
   return (
     <div className="w-full bg-white">
@@ -66,16 +151,7 @@ export const Edit = () => {
       <div className="bg-white">
         <header className="bg-white text-gray-900 py-4 px-6 text-xl font-bold flex justify-between items-center">
           자막 편집
-          <Button
-            variant="outline"
-            className="hover:bg-gray-200"
-            onClick={() => {
-              setFileName(""); // 모달을 열 때마다 입력된 내용을 초기화
-              setShowModal(true);
-            }}
-          >
-            + 자막 추가
-          </Button>
+          
         </header>
         <div className="flex bg-white">
           <div className="w-1/2 p-4">
@@ -96,6 +172,15 @@ export const Edit = () => {
                     defaultValue={generatedData}
                   />
                 </div>
+
+                <div>
+                  <Label htmlFor="content">수정된 자막</Label>
+                  <Textarea
+                    id="content"
+                    rows={5}
+                    defaultValue={checkedData}
+                  />
+                </div>
                 
                 <div className="mt-7" />
                 <div className="flex justify-end space-x-2">
@@ -111,62 +196,20 @@ export const Edit = () => {
     
     <h2 className="text-xl font-bold text-black mb-4">영상 미리보기</h2>
     <div className="relative w-full h-0 pb-[56.25%]">
-      <iframe
-        src="https://www.youtube.com/embed/ATK7gAaZTOM?"
-        className="absolute top-0 left-0 w-full h-full"
-        frameBorder="0"
-        allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-        allowFullScreen
+    <iframe
+            src={getlink}
+            className="absolute top-0 left-0 w-full h-full"
+            frameBorder="0"
+            allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
       />
+
     </div>
   </div>
 </div>
 
         </div>
 
-        {/* 자막 추가 모달 */}
-        {showModal && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-white p-6 rounded shadow-lg">
-              <h2 className="text-xl font-bold text-black mb-4">영상 선택</h2>
-              <input 
-                type="text" 
-                placeholder="영상 제목을 입력하세요.." 
-                className="border bg-white p-2 w-full mb-4"
-              />
-
-              <input 
-                type="text" 
-                placeholder="영상 링크를 입력하세요.." 
-                value={fileName} 
-                onChange={(e) => setFileName(e.target.value)} 
-                className="border bg-white p-2 w-full mb-4"
-              />
-              
-              <div className="flex justify-end space-x-2">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="hover:bg-gray-200" 
-                  onClick={() => setShowModal(false)}
-                >
-                  취소
-                </Button>
-                <Button 
-                  variant="solid" 
-                  size="sm" 
-                  className="hover:bg-blue-600"
-                  onClick={() => {
-                    // 유튜브 URL 처리 로직
-                    setShowModal(false); // 모달 닫기
-                  }}
-                >
-                  업로드
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* 하단 페이지: 자막 번역 */}
@@ -179,18 +222,17 @@ export const Edit = () => {
             <div className="bg-white rounded-lg shadow-md p-4 border border-gray-300">
               <div className="flex items-center justify-between mb-2">
                 <h2 className="text-xl font-bold text-black">제목 및 태그 추천</h2>
-                <Button variant="outline" className="hover:bg-gray-200">추천받기</Button>
-              </div>
+                <Button variant="outline" className="hover:bg-gray-200" onClick={handleRecommend}>추천받기</Button>
+             </div>
               <div className="grid gap-4">
                 <div>
                   <Label htmlFor="title">추천 제목</Label>
-                  <Input id="title" defaultValue="제목 1" />
+                  <Input id="title" defaultValue={recommendtitle} />
                 </div>
                 <div>
                   <Label htmlFor="tags">추천 태그</Label>
-                  <Input id="tags" defaultValue="# 태그 1" />
-                  <Input id="tags" defaultValue="# 태그 2" />
-                  <Input id="tags" defaultValue="# 태그 3" />
+                  <Input id="tags" defaultValue={recommendtag} />
+      
                 </div>
                 <div className="mt-3" />
                 <div className="flex justify-end space-x-2">
@@ -203,11 +245,17 @@ export const Edit = () => {
           <div className="w-1/2 p-4">
             <div className="bg-white rounded-lg shadow-md p-4 border border-gray-300">
               <div className="flex items-center justify-between mb-2">
+                
                 <h2 className="text-xl font-bold text-black">자막 번역</h2>
                 <div className="flex space-x-2">
-                  <Select id="translation-language" options={languageOptions} className="mr-2" />
-                  <Button variant="outline" className="hover:bg-gray-200">번역</Button>
-                </div>
+                <Select
+                id="translation-language"
+                options={languageOptions}
+                className="mr-2"
+                onChange={(e) => setSelectedLanguage(e.target.value)} // 선택한 언어 상태 업데이트
+              />
+                  <Button variant="outline" className="hover:bg-gray-200" onClick={handleTranslation}> 번역</Button>
+  </div>
               </div>
               <div className="grid gap-4">
                 <div>
@@ -215,11 +263,7 @@ export const Edit = () => {
                   <Textarea
                     id="translation"
                     rows={5}
-                    defaultValue={`0:11 This morning, I ate bread in my mouth
-
-0:15 Start your day exactly the same...
-
-1:05 I don't like to think about it`}
+                    defaultValue={translation}
                   />
                 </div>
                 <div>
@@ -251,3 +295,4 @@ export const Edit = () => {
 };
 
 export default Edit;
+

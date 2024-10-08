@@ -20,7 +20,9 @@ function App() {
   const handleLogout = () => {
     localStorage.removeItem('token'); // 로그아웃 시 토큰 삭제
     setIsLoggedIn(false);
+    window.location.reload(); // 새로고침
   };
+  
 
   return (
     <Router>
@@ -41,9 +43,9 @@ function App() {
             <Link to="/Mypage" className="text-gray-300 font-bold text-white px-4 py-2 rounded hover:bg-blue-600">
               마이페이지
             </Link>
-            <Link to="/Edit" className="text-gray-300 font-bold text-white px-4 py-2 rounded hover:bg-blue-600">
+            {/* <Link to="/Edit" className="text-gray-300 font-bold text-white px-4 py-2 rounded hover:bg-blue-600">
               자막편집
-            </Link>
+            </Link> */}
           </div>
         </div>
         <div className="flex items-center space-x-4">
