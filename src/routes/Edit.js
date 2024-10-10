@@ -98,6 +98,7 @@ export const Edit = () => {
   };
 
   const handleCheck = async () => {
+    setLoading(true); // 로딩 시작
     try {
       // 보낼 데이터를 콘솔에서 확인
       console.log('보내는 데이터:', generatedData);
@@ -112,11 +113,14 @@ export const Edit = () => {
   
     } catch (error) {
       console.error('에러 발생:', error.response?.data || error.message);
+    }finally {
+      setLoading(false); // 로딩 종료
     }
   };
   
 
   const handleRecommend = async () => {
+    setLoading(true); // 로딩 시작
     try {
       const response = await axios.post('http://localhost:4000/llm/recommend', { content: generatedData });
     
@@ -135,11 +139,14 @@ export const Edit = () => {
       console.log('추천 태그:', hashtags);
     } catch (error) {
       console.error('추천 요청 에러 발생:', error.response?.data || error.message);
+    }finally {
+      setLoading(false); // 로딩 종료
     }
   };
   
   
   const handleTranslation = async () => {
+    setLoading(true); // 로딩 시작
     try {
       // 서버에 번역 요청
       const response = await axios.post('http://localhost:4000/llm/translate', {
@@ -153,6 +160,8 @@ export const Edit = () => {
       // 필요에 따라 번역 결과를 상태에 저장하거나 처리
     } catch (error) {
       console.error('번역 요청 에러 발생:', error.response?.data || error.message);
+    }finally {
+      setLoading(false); // 로딩 종료
     }
   };
 
