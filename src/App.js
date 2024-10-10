@@ -6,6 +6,7 @@ import Edit from './routes/Edit';
 import Login from './routes/Login';
 import SignUp from './routes/Signup';
 import User from './routes/User';
+import axios from 'axios';
 
 // 로그아웃 버튼을 처리하는 컴포넌트
 function Header({ isLoggedIn, setIsLoggedIn }) {
@@ -68,9 +69,24 @@ function App() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      setIsLoggedIn(true); // 토큰이 있으면 로그인 상태로 설정
+      // 백엔드에 토큰 유효성 검증 요청
+      axios
+        .get('http://localhost:4000/auth/verify-token', { headers: { Authorization: `Bearer ${token}` } })
+        .then((response) => {
+          if (response.data.valid) {
+            setIsLoggedIn(true); // 토큰이 유효하면 로그인 상태로 설정
+          } else {
+            localStorage.removeItem('token'); // 유효하지 않으면 토큰 삭제
+            setIsLoggedIn(false); // 로그아웃 상태로 설정
+          }
+        })
+        .catch(() => {
+          localStorage.removeItem('token'); // 에러 발생 시 토큰 삭제
+          setIsLoggedIn(false); // 로그아웃 상태로 설정
+        });
     }
   }, []);
+
 
   return (
     <Router>
