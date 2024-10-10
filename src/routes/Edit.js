@@ -1,9 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom'; // useParams 임포트
 import axios from 'axios';
-import { Button, Label, Textarea, Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem, Input, Select, Audio} from '../components/Components';
+import { Button, Label, Textarea, Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem, Input, Select, Audio, Spinner} from '../components/Components';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+
+// 로딩 팝업 컴포넌트
+const LoadingPopup = () => {
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div className="bg-white p-4 rounded shadow-md flex items-center">
+        <div>
+          <h2 className="text-lg font-bold">로딩중...</h2>
+          <p>잠시만 기다려 주세요.</p>
+        </div>
+        <Spinner className="mr-2" /> {/* Spinner 컴포넌트를 여기에 추가 */}
+      </div>
+    </div>
+  );
+};
 
 
 export const Edit = () => {
@@ -11,14 +26,12 @@ export const Edit = () => {
   const [isFocused, setIsFocused] = useState(false);
   const [generatedData, setGeneratedData] = useState(""); // 생성된 데이터를 위한 상태 추가
   const [checkedData, setCheckedData] = useState(''); // 서버에서 받아온 데이터를 저장할 상태 추가
-
   const [recommendtitle, setrecommendTitle] = useState(''); //추천 제목
   const [recommendtag, setrecommendTag] = useState(''); //추천 태그
   const [translation, settranslation] = useState(''); //번역
   const [selectedLanguage, setSelectedLanguage] = useState(''); // 선택한 언어 저장
-
   const [getlink, setlink] = useState(''); //유튜브 링크
-
+  const [loading, setLoading] = useState(false); // 로딩 상태 추가
   const { projectId } = useParams(); // URL에서 projectId 추출
 
   useEffect(() => {
@@ -70,6 +83,8 @@ export const Edit = () => {
     event.preventDefault();
     const formData = { content_projectID: projectId };
 
+    setLoading(true); // 로딩 시작
+
     try {
       await axios.post(`http://localhost:3000/work/generateSub`, formData);
       const readSRTData = { content_projectID: projectId, content_language: "kr" };
@@ -77,6 +92,8 @@ export const Edit = () => {
       setGeneratedData(responseReadSRT.data);
     } catch (error) {
       console.error('에러 발생:', error.response?.data || error.message);
+    } finally {
+      setLoading(false); // 로딩 종료
     }
   };
 
@@ -101,27 +118,18 @@ export const Edit = () => {
 
   const handleRecommend = async () => {
     try {
-      // 추천 제목 및 태그를 서버에서 요청
       const response = await axios.post('http://localhost:4000/llm/recommend', { content: generatedData });
-  
-      // 서버 응답에서 문자열을 \n으로 쪼개기
-      const dataString = response.data; // 예: "제목: 오디오 추출 SRT 파일 확인 방법\n해시태그1: 오디오 추출\n해시태그2: SRT 파일"
-  
-      // \n으로 분리
-      const lines = dataString.split('\n');
-  
-      // 첫 번째 줄에서 제목 추출
-      const title = lines[0].replace(/제목:\s*/, '').trim(); // "제목: " 제거
-  
-      // 나머지 줄에서 해시태그 추출
-      const hashtags = lines
-        .slice(1) // 첫 번째 줄 제외
-        .filter(line => line.startsWith('해시태그')) // "해시태그"로 시작하는 줄만 필터링
-        .map(line => line.replace(/해시태그\d:\s*/, '').trim()); // "해시태그X: " 제거
-  
-      // 상태 설정
-      setrecommendTitle(title); // 추천 제목 설정
-      setrecommendTag(hashtags); // 추천 태그 설정
+    
+      const data = response.data;
+
+      const title = data.제목 || ''; 
+      
+      const hashtags = Object.keys(data) 
+        .filter(key => key.startsWith('해시태그')) 
+        .map(key => data[key].trim()) 
+
+      setrecommendTitle(title);
+      setrecommendTag(hashtags);
   
       console.log('추천 제목:', title);
       console.log('추천 태그:', hashtags);
@@ -154,7 +162,6 @@ export const Edit = () => {
       <div className="bg-white">
         <header className="bg-white text-gray-900 py-4 px-6 text-xl font-bold flex justify-between items-center">
           자막 편집
-          
         </header>
         <div className="flex bg-white">
           <div className="w-1/2 p-4">
@@ -175,14 +182,13 @@ export const Edit = () => {
                     defaultValue={generatedData}
                   />
                 </div>
-
                 <div>
-  <Label htmlFor="content">수정된 자막</Label>
-  <div className="bg-gray-100 border border-gray-300 p-4 rounded-md">
-    <ReactMarkdown remarkPlugins={[remarkGfm]}>{checkedData}</ReactMarkdown>
-  </div>
-</div>
-                
+                  <Label htmlFor="content">수정된 자막</Label>
+                  <div className="bg-gray-100 border border-gray-300 p-4 rounded-md">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{checkedData}</ReactMarkdown>
+                  </div>
+                </div>    
+                {loading && <LoadingPopup />} {/* 로딩 중일 때 팝업 표시 */}     
                 <div className="mt-7" />
                 <div className="flex justify-end space-x-2">
                   <Button variant="outline" size="sm">취소</Button>

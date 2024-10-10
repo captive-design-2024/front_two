@@ -108,3 +108,10 @@ export const Audio = ({ src, ...props }) => (
       Your browser does not support the audio element.
     </audio>
   );
+
+// Spinner 컴포넌트
+export const Spinner = () => (
+  <div className="flex justify-center items-center">
+    <div className="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full border-blue-500 border-t-transparent"></div>
+  </div>
+);
